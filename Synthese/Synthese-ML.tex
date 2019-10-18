@@ -6,22 +6,78 @@
 \usepackage{listings}
 \usepackage{pdfpages}
 \usepackage{array}
+\usepackage{titling}
+\usepackage{geometry}
 
-\title{Synthèse\\ 
-		Machine Learning}
+\geometry{hmargin=2.5cm,vmargin=1.5cm}
+\setlength{\hoffset}{-18pt}        
+\setlength{\oddsidemargin}{0pt} % Marge gauche sur pages impaires
+\setlength{\evensidemargin}{9pt} % Marge gauche sur pages paires
+\setlength{\marginparwidth}{54pt} % Largeur de note dans la marge
+\setlength{\textwidth}{481pt} % Largeur de la zone de texte (17cm)
+\setlength{\marginparsep}{2pt} % Séparation de la marge
+\setlength{\topmargin}{0pt} % Pas de marge en haut
+\setlength{\headheight}{10pt} % Haut de page
+\setlength{\headsep}{10pt} % Entre le haut de page et le texte
+\setlength{\footskip}{27pt} % Bas de page + séparation
+\setlength{\textheight}{708pt} % Hauteur de la zone de texte (25cm)
+
+\setlength{\droptitle}{-4cm}
+\title{Synthèse - Machine Learning}
 \author{Léa Calem - Fatima Layla - Laureline Martin}
 
 \begin{document}
 
-\pagenumbering{gobble}\clearpage
-	\pagenumbering{gobble}\clearpage
-	\maketitle
-	\newpage\clearpage\pagenumbering{arabic}
+\maketitle
+	
+\section{Description du jeu de données}
+	\subsection{Quel est le type de problème ?}
+		Dans ce projet, nous devons classifier des images. les images reprensentent soit des t-shirt soit des robes.\\
+		Le problème est de type supervisé car nos données sont déjà annotées :
+		$$ S = {(x_i, y_i)} $$
+		Tel que : $x_i$ = ensemble des images, 
+		$y_i$ = ensemble des étiquettes des classes $C_1$ et $C_2$.\\
+		Classification : $y_i = {C_1, C_2}$.
+		Avec les classes : $C_1 =$ \{0 T-shirt/top\} et $C_2 =$ \{3 Dress\}.\\
+		\\
+		À l’aide des méthodes d’apprentissage, on recherche la fonction $h(x)$ qui à toutes images $x$ associées une étiquette $\hat(y)$. Le but est d’obtenir des valeurs $\hat(y)_i$ proches des $y_i$, pour tout $(x_i, y_i)$ appartenant à $S$.\\
+		(cours 02\_methodo\_etu.pdf/ slide 9)
+
+	\subsection{quelles sont les données ?}
+		\subsubsection{Modélisation des données sous forme de matrice}
+			Nombre d’observations : 14 000 :
+			\begin{itemize}
+				\item 7 000 de la classe $C_1$
+				\item 7 000 de la classe $C_2$
+			\end{itemize}
+		\subsubsection{Séparation des jeux de données}
+			\begin{enumerate}
+				\item Données d’entraînement : sous-ensemble de données destiné à l’apprentissage du modèle. On utilise 75\% des données, soit 10 500 .
+				\item Données de test : sous-ensemble de données destiné à l’évaluation du modèle (ce jeu de données ne doit en aucun cas être utilisé lors de la conception du modèle). On utilise 25\% des données, soit 3 500.
+			\end{enumerate}
+	
+	\subsection{Description des données}
+		Les données sont des images de taille 28x28 pixels (784 pixels) composées de niveau de gris (valeur allant de 0 à 255). Sur ces images, seul l’objet est coloré donc le reste de l’image est en blanc, la valeur des pixels à 0.
+
+	\subsection{Description statistique}
+		Graphe du nombre de pixels différents de 0 en fonction de la classe.
+		On divise l’image en 3, on cherche la moyenne du blanc de la 1ère et 3éme partie.
+
+	\subsection{Paramètres}
+		Étant donné que les images $x_i$ sont bruitées, on suppose que les pixels ayant une valeur < 25 sont blanc.\\Comme paramètre : écart entre blanc et gris tous les 28 pixels.
+
 
 \newpage
-\tableofcontents
+\section{Méthodologie}
+	\subsection{Méthodes d'apprentissage utilisées}
+		\begin{itemize}
+			\item Les K-NN (K plus proches voisins) : Fatima
+			\item La régression : Lauréline
+			\item SVM : Léa
+		\end{itemize}
 
-
+	\subsection{Protocole de comparaison}
+		Pour comparer les résultats des différentes méthodes d'apprentissages utilisées, nous évaluons le taux d’erreurs sur des jeux identiques de données.
 
 
 \end{document}
