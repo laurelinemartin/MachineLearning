@@ -77,18 +77,30 @@
 	\subsection{Paramètres}
 		Comme les images $x_i$ sont bruitées, nous supposons que les pixels ayant une valeur < 25 sont blancs.
 		Pour trouver ce seuil, nous avons testé plusieurs valeurs de pixels : 15, 25 et 35 et nous en avons conclu que 25 était la plus adéquat pour définir la valeur bruitée avec le minimum d'erreur (confusion avec l'objet).\\
-		Nous évaluons comme paramètre le nombre de pixels blancs du premier tiers de l'image (horizontal) par rapport au troisième tiers. Comme le vêtement est symétrique, ce rapport se fait sur la moitié gauche de l'image. Ainsi, nous évaluons un rapport de deux surfaces de 9x9 pixels.	\\
+		Nous évaluons comme paramètre le nombre de pixels blancs du premier tiers de l'image (horizontal) par rapport au troisième tiers. Comme le vêtement est symétrique, ce rapport se fait sur la moitié gauche de l'image. Ainsi, \\
+		Néanmoins, on remarque que sur 2 dimensions les classes se superposent encore dû aux tops et aux robes qui ont des rapports proches. Nous allons donc augmenter cet espace d'une dimension en calculant le rapport des pixels blancs entre le deuxième tiers et le troisième tiers. Les robes ayant une jupe évasée contrairement aux tops. \\
+		Notre espace est donc le suivant :
+		\begin{itemize}
+			\item Pour l'axe $x$ : N° objet
+			\item Pour l'axe $y$ : rapport 1er tiers/ 3e tiers
+			\item Pour l'axe $z$ : rapport 2e tiers / 3e tiers
+		\end{itemize}
+		Nous évaluons pour les axes $y$ et $z$ les rapports de deux surfaces de 9x9 pixels tel que : \\
 		Graphiquement :
 		$$ \forall pixels_{i,j} < 25,  (\sum_{i=1} ^9 \sum_{j=1} ^9  (pixels_{i,j})) / (\sum_{i=19} ^{28} \sum_{j=1}^9  (pixels_{i,j}) ) $$
 		Pour le jeu de données :
 		$$ \forall pixels_j < 25, (\sum_{i=0} ^8 \sum_{j=1} ^9  (pixels_j +28i) ) / (\sum_{i=18} ^{27} \sum_{j=1} ^9  (pixels_j+28i) ) $$
-
+		(pour le calcul de l'axe $z$ on remplace les bornes des sommes du numérateur par $i=10$ à 19).
 
 	\subsection{Méthodes d'apprentissage utilisées}
+		Chaque image sera caractérisé par les paramètres décrit dans la section ci- dessus. 
 		\begin{itemize}
-			\item Les K-NN (K plus proches voisins) : Fatima
-			\item La régression : Lauréline
-			\item SVM : Léa
+			\item Les K-NN (K plus proches voisins) : Fatima\\
+			Un $k$ initial est fixé, la classification d'une nouvelle observation revient à calculer la distance de cette image avec ses $k$ plus proches voisins et l'étiquette de cette nouvelle observation sera déterminée selon l'étiquette la plus fréquente dans son voisinnage. Le $k$ optimal sera déterminé grâce à notre méthode d'optimisation décrite ci-après.
+			\item La régression : Lauréline\\
+			La variable $Y$ prend deux modalités possibles ${0, 1}$ selon la classe de l'objet qu'il décrit (0 pour $C_1$ et 1 pour $C_2$). On a la formule $Y = a + b_1 x_1+ b_2 x_2$ avec $x_1$ le rapport 1er tier / 3e tier et $x_2$ le rapport 2e tiers / 3e tiers. Notre algorithme déterminera et affinera les coefficients $b_1, b_2$ et la constante $a$ lors de l'apprentissage.
+			\item SVM : Léa\\
+			On cherche un hyperplan de dimension 2 (car nous travaillons dans espace de dimension 3), tel que pour tout objet $x$ de vecteur $x = {a_1, a_2} $ on a $h(x) = l_k (\sum_{i = 1} ^2 ((w_i . x_i ) + b ) )$ avec $w$ le vecteur de poids et $b$ le biais et $l_k$ le label tel que $l_k = 1 $ pour la classe $C_1$ et $l_k = -1$ pour la classe $C_2$. Grâce à cette équation d'hyperplan et en utilisant la norme Euclidienne de $w$, nous pouvons calculer la distance $d$ de l'hyperplan à chaque objet de l'espace. Et en déduire la marge (la distance minimale de $d$). Afin d'augmenter la tolérence aux variations de notre algorithme, nous cherchons l'hyperplan ayant la plus grande marge (l'hyperplan optimal). Ainsi, l'algorithme doit trouver le meilleur couple $(w, b)$ décrivant cet hyperplan. Pour facilité les calculs, nous allons normaliser l'équation de l'hyperplan.
 		\end{itemize}
 
 	\subsection{Méthode d'optimisation}
