@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
@@ -17,7 +17,7 @@
 \setlength{\textwidth}{481pt} % Largeur de la zone de texte (17cm)
 \setlength{\marginparsep}{2pt} % Séparation de la marge
 \setlength{\topmargin}{0pt} % Pas de marge en haut
-\setlength{\headheight}{10pt} % Haut de page
+\setlength{\headheight}{6pt} % Haut de page
 \setlength{\headsep}{10pt} % Entre le haut de page et le texte
 \setlength{\footskip}{27pt} % Bas de page + séparation
 \setlength{\textheight}{708pt} % Hauteur de la zone de texte (25cm)
@@ -42,17 +42,21 @@
 		Ces images sont issues des classes 0 et 3 du jeu données Fashion-MNIST (http://www.openml.org/d/40996). 
 	\subsection{Séparation des jeux de données}
 		\begin{enumerate}
-			\item Données d’entraînement : sous-ensemble de données destiné à l’apprentissage du modèle. Nous utilisons 75\% des données pour l'apprentissage, soit 10 500 images.
-			\item Données de test : sous-ensemble de données destiné à l’évaluation du modèle (ce jeu de données ne doit en aucun cas être utilisé lors de la conception du modèle). Nous utilisons 25\% des données, soit 3 500 images.
+			\item Données d’entraînement : sous-ensemble de données destiné à l’apprentissage du modèle. Nous utilisons 80\% des données pour l'apprentissage, soit 11 200 images.
+			\item Données de test : sous-ensemble de données destiné à l’évaluation du modèle (ce jeu de données ne doit en aucun cas être utilisé lors de la conception du modèle). Nous utilisons 20\% des données, soit 2 800 images.
 		\end{enumerate}
 
 	\subsection{Description statistique}
-		Ci-dessous, un graphe représentant le nombre de pixels différents de 0 en fonction de la classe.
-		Nous avons divisé l’image en 3 tiers horizontaux, puis nous calculons la moyenne du blanc de la 1ère et 3éme partie. Les t-shirts ont une moyenne de blanc moins importante sur le 1er tiers de l'image que sur le 3e tiers (car les manches sont plus larges que le reste du tissu), tandis que les moyennes de blanc pour les robes sont similaires pour le 1er et le 3e tiers de l'image (manches et la jupe du vêtement prennent autant d'espace sur l'image).\\
+		Ci-dessous, un graphe représente un échantillon de 200 images (108 de la classe $C_1$ et 92 de $C_2$) avec en ordonné le rapport décrit ci-dessus et en abscisse le numéro de l'image. 
+		\begin{itemize}
+			\item Bleu : classe $C_1$
+			\item Orange : classe $C_2$
+		\end{itemize}
+		Nous avons divisé l’image en 3 tiers horizontaux, puis nous calculons la moyenne du blanc de la 1ère et 3éme partie. Les t-shirts ont une moyenne de blanc moins importante sur le 1er tiers de l'image que sur le 3e tiers (car les manches sont plus larges que le reste du tissu), tandis que les moyennes de blanc pour les robes sont similaires pour le 1er et le 3e tiers de l'image (manches et la jupe du vêtement prennent autant d'espace sur l'image). On considère que les pixels inférieurs à 25 sont blancs.\\
+
 		%images
 		\includegraphics[scale = 0.25]{fichiers/ex_tshirt.PNG}
-		\includegraphics[scale = 0.25]{fichiers/ex_robe.PNG}\\
-		\\
+		\includegraphics[scale = 0.25]{fichiers/ex_robe.PNG}
 		\vfill\begin{center} \includegraphics[scale = 0.6]{fichiers/rapport.PNG} \end{center}\vfill
 		
 
@@ -71,8 +75,14 @@
 		%(cours 02\_methodo\_etu.pdf/ slide 9)
 
 	\subsection{Paramètres}
-		Comme les images $x_i$ sont bruitées, nous supposons que les pixels ayant une valeur < 25 sont blanc.\\
-		Nous évaluons comme paramètre l'écart entre blanc et gris tous les 28 pixels.
+		Comme les images $x_i$ sont bruitées, nous supposons que les pixels ayant une valeur < 25 sont blancs.
+		Pour trouver ce seuil, nous avons testé plusieurs valeurs de pixels : 15, 25 et 35 et nous en avons conclu que 25 était la plus adéquat pour définir la valeur bruitée avec le minimum d'erreur (confusion avec l'objet).\\
+		Nous évaluons comme paramètre le nombre de pixels blancs du premier tiers de l'image (horizontal) par rapport au troisième tiers. Comme le vêtement est symétrique, ce rapport se fait sur la moitié gauche de l'image. Ainsi, nous évaluons un rapport de deux surfaces de 9x9 pixels.	\\
+		Graphiquement :
+		$$ \forall pixels_{i,j} < 25,  (\sum_{i=1} ^9 \sum_{j=1} ^9  (pixels_{i,j})) / (\sum_{i=19} ^{28} \sum_{j=1}^9  (pixels_{i,j}) ) $$
+		Pour le jeu de données :
+		$$ \forall pixels_j < 25, (\sum_{i=0} ^8 \sum_{j=1} ^9  (pixels_j +28i) ) / (\sum_{i=18} ^{27} \sum_{j=1} ^9  (pixels_j+28i) ) $$
+
 
 	\subsection{Méthodes d'apprentissage utilisées}
 		\begin{itemize}
@@ -81,8 +91,13 @@
 			\item SVM : Léa
 		\end{itemize}
 
+	\subsection{Méthode d'optimisation}
+		Nous allons utiliser la méthode de validation croisée pour assigner chaque donnée à une phase de d'apprentissage ou une phase de test. Cette méthode consiste à partitionner notre jeu de données en fonction d'une taille $k=5$. La répartition des parties ainsi créées à la phase d'apprentisage ou à la phase de test, l'entrainement de l'algorithme sur la phase d'apprentissage puis sur la phase de test pour laquelle nous comparerons les résultats obtenus aux résultats attendus. \\
+		Nous définissons $k=5$ pour avoir un ratio acceptable entre le volume de données traitées et le temps d'éxecution.\\
+		Nos parties seront stratifiées, c'est-à-dire qu'elles contiennent la même proportion de chaque classe étudiées, afin d'avoir une chance équiprobable d'évaluer un objet issu de la classe $C_1$ ou de la classe $C_2$.
+
 	\subsection{Protocole de comparaison}
-		Pour comparer les résultats des différentes méthodes d'apprentissages utilisées, nous évaluons le taux d’erreurs sur des jeux identiques de données.
+		Pour comparer les résultats des différentes méthodes d'apprentissages utilisées, nous évaluons leur taux d’erreurs respectifs sur des jeux identiques de données ainsi que leur temps de traitement.
 
 
 \end{document}
